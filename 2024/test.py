@@ -1,9 +1,13 @@
 import re
 reg = re.compile(r'(\d*)\s')
 
-l = ["71 73 74 76 78 80 77"]
-print(l[0])
+report = [7, 620, 4, 2, 1]
+print(report[:1])
+print(report[1+1:])
+# print(report[0])
 
-m=re.match(reg, l[0])
+# m=re.match(reg, report[0])
 
-print(m.group(2))
+for i in range(len(report)):
+    a = report[:i] + report[i+1:]
+    print(a)

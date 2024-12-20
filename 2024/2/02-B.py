@@ -27,30 +27,28 @@ with open(script_run + "/02-A_inputlist.txt", "r") as the_file:
 #     print(i)
 
 
+def safe_check(elements_to_check):
+    variation = []
+    difference = []
+    for i in range(len(elements_to_check)-1):
+        variation.append(compare(elements_to_check[i], elements_to_check[i+1]))
+        difference.append(distance(elements_to_check[i], elements_to_check[i+1]))
+    # print(variation, difference)
+    # print(all(difference))
+    if (all(variation) == any(variation)) and all(difference):
+        return True
+
+
 safe_report = 0
 for report in report_data:
-    variation = []
-    com = 0
-    dist = 0
-    tollerete = 1
-    print(report)
-    for i in range(0, len(report)-1):
-        #print(report[i], report[i+1])
-        variation.append(compare(report[i], report[i+1]))
-        if distance(report[i], report[i+1]) == 1:
-            dist +=1
-        elif distance(report[i], report[i+1]) == 0 and tollerete == 1:
-            dist +=1
-            tollerete = 0
-    print(variation, dist, tollerete)
-    if (variation.count(0) == len(report)-1 or variation.count(1) == len(report)-1) and dist == len(report)-1:
-        print("safe1", report)
+    if safe_check(report):
         safe_report += 1
-    elif (variation.count(0) == len(report)-2 or variation.count(1) == len(report)-2) and (dist == len(report)-1) and tollerete == 1:
-        print("safe2", report)
-        safe_report += 1
-    # if (com == len(report)-1 or com == 0) and dist == len(report)-1:
-    #     print("safe", report)
-    #     safe_report += 1
+    else:
+        for i in range(len(report)):
+            modified_report = report[:i] + report[i+1:]
+            if safe_check(modified_report):
+                safe_report += 1
+                break
+
 
 print(safe_report)
