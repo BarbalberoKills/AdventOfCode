@@ -1,102 +1,53 @@
+import pathlib
 
 
-mat = [
-    [1, 2, 3, 4],
-    [5, 6, 7, 8],
-    [8, 10, 11, 12],
-    [13, 14, 15, 16],
-    [17, 18, 19, 20]
-]
+script_run = str(pathlib.Path(__file__).parent.resolve())
+puzzle_input = ""
+with open(script_run + "/4/04-A_inputlist.txt", "r") as the_file:
+    for line in the_file:
+        puzzle_input += line
+
+grid = []
+for c, line in enumerate(puzzle_input.splitlines()):
+    grid.append(line)
 
 
-center = [1, 1]
 
-# print(mat[center[0]][center[1]])
+def check_direction(grid, row, col, word, d_row, d_col):
+    for i in range(len(word)):
+        new_row = row + i * d_row
+        new_col = col + i * d_col
 
-def move(pos, dir, increment):
-    match(dir):
-        case("right"):
-            pos[1] += abs(increment)
-            return pos
-        case("bottom-right"):
-            pos[0] -= abs(increment)
-            pos[1] += abs(increment)
-            return pos
-        case("bottom"):
-            pos[0] -= abs(increment)
-            return pos
-        case("bottom-left"):
-            pos[0] -= abs(increment)
-            pos[1] -= abs(increment)
-            return pos
-        case("left"):
-            pos[1] -= abs(increment)
-            return pos
-        case("up-left"):
-            pos[0] += abs(increment)
-            pos[1] -= abs(increment)
-            return pos
-        case("up"):
-            pos[0] += abs(increment)
-            return pos
-        case("up-right"):
-            pos[0] -= abs(increment)
-            pos[1] += abs(increment)
-            return pos
+        # Check bounds
+        if not (0 <= new_row < len(grid) and 0 <= new_col < len(grid[0])):
+            return False
+
+        # Check character match
+        if grid[new_row][new_col] != word[i]:
+            return False
+
+    return True
 
 
-class Point():
-
-    def __init__(self, x, y):
-        '''Defines x and y variables'''
-        self.X = x
-        self.Y = y
-
-for actual_row in range(len(mat)):
-    for actual_col in range(len(mat[actual_row])):
-        p = mat[actual_row][actual_col]
-        print("RIGHT", p)
-        for lenght_word in range(4):
-            if actual_col + 4 <= len(mat[actual_row]):
-                next_pos = move([actual_row, actual_col], "right", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
-        print("BOTTOM-RIGHT", p)
-        for lenght_word in range(4):
-            if (actual_col + 4 <= len(mat[actual_row])) and (actual_row + 4 <= len(mat[actual_row])):
-                next_pos = move([actual_row, actual_col], "bottom-right", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
-        print("BOTTOM", p)
-        for lenght_word in range(4):
-            if actual_row + 4 <= len(mat[actual_row]):
-                next_pos = move([actual_row, actual_col], "bottom", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
-        print("BOTTOM-LEFT", p)
-        for lenght_word in range(4):
-            if (actual_col - 3 >= 0) and (actual_row + 4 <= len(mat[actual_row])):
-                next_pos = move([actual_row, actual_col], "bottom-left", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
-        print("LEFT", p)
-        for lenght_word in range(4):
-            if actual_col - 3 >= 0:
-                next_pos = move([actual_row, actual_col], "left", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
+def find_word(grid, word):
+    count = 0
+    directions = [
+        (0, 1), (0, -1), (1, 0), (-1, 0), 
+        (1, 1), (-1, -1), (1, -1), (-1, 1)
+    ]
+    for row in range(len(grid)):
+        for col in range(len(grid[0])):
+            for d_row, d_col in directions:
+                if check_direction(grid, row, col, word, d_row, d_col):
+                    count += 1
+    return count
 
 
-        print("UP", p)
-        for lenght_word in range(4):
-            if actual_row - 3 >= 0:
-                next_pos = move([actual_row, actual_col], "up", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
-        print("UP-RIGHT", p)
-        for lenght_word in range(4):
-            if (actual_col + 4 <= len(mat[actual_row])) and (actual_row - 3 >= 0):
-                next_pos = move([actual_row, actual_col], "up-right", lenght_word)
-                print(next_pos)
-        print("------------------------------------")
 
+
+
+grid = [list(row) for row in grid]
+word = "XMAS"
+
+result = find_word(grid, word)
+print(f"Number of occurrences of '{word}': {result}")
