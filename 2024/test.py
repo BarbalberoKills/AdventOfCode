@@ -11,5 +11,16 @@ def switch(status, s):
     elif s == "don't()" and status == True:
         return True
     
+def test(status, s):
+    match (s, status):
+        case ("do()", True):
+            return False
+        case ("don't()", False):
+            return False
+        case ("do()", False):
+            return True
+        case ("don't()", True):
+            return True
+        
 
-print(switch(False, "do()"))
+print(test(False, "do()"))

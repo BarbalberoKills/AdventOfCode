@@ -7,17 +7,14 @@ def mul(a, b):
 
 
 #check do/don't passed instruction against the actual running instruction
-def switch(status, s):
-    if s == "do()" and status == True:
-        return True
-    elif s == "don't()" and status == False:
-        return False
-    elif s == "do()" and status == False:
-        return True
-    elif s == "don't()" and status == True:
-        return False
-    elif s == "":
-        return status
+def switch(switch, status):
+    match(switch):
+        case("do()"):
+            return True
+        case("don't()"):
+            return False
+        case(""):
+            return status
 
 
 script_run = str(pathlib.Path(__file__).parent.resolve())
@@ -36,12 +33,12 @@ add_up = 0
 doing = True
 
 for i in mul_instructions:
-    print(i)
+    # print(i)
     if i == "don't()" or i == "do()":
-        doing = switch(doing, i)
+        doing = switch(i, doing)
     else:
         numbers_to_multiply = re.match(numbers_exp, i)
-        print(doing)
+        # print(doing)
         if doing == True:
             add_up += mul(int(numbers_to_multiply.group(1)), int(numbers_to_multiply.group(2)))
 
