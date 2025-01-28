@@ -43,7 +43,7 @@ with open(script_run + "/04-A_inputlist.txt", "r") as the_file:
 mat = []
 for c, line in enumerate(puzzle_input.splitlines()):
     mat.append([])
-    for k, element in enumerate(line):
+    for element in line:
         mat[c].append(element)
 
 
@@ -53,8 +53,8 @@ xmas_counter = 0
 for actual_row in range(len(mat)):
     for actual_col in range(len(mat[actual_row])):
         for dir in directions:
-            next_pos = move([actual_row, actual_col], dir, len(word_to_find))
-            if (0 <= next_pos[0] <= len(mat[actual_row])) and (0 <= next_pos[1] <= len(mat)):
+            next_pos = move([actual_row, actual_col], dir, (len(word_to_find)-1))
+            if (0 <= next_pos[0] < len(mat)) and (0 <= next_pos[1] < len(mat[actual_row])):
                 word = ""
                 for position_in_word in range(len(word_to_find)):
                     next_pos = move([actual_row, actual_col], dir, position_in_word)
