@@ -2,15 +2,16 @@ package p1
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
 
 func Solve(input string) int {
-	file, err := os.ReadFile(input)
+	file, err := utils.ReadFile(input)
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
+		fmt.Println("error opening file: ", err)
 	}
 
 	var invalid int
@@ -27,10 +28,12 @@ func checkInvalid(interval string) int {
 	end, _ := strconv.Atoi(bounds[1])
 	var invalid int
 
+	// I cycle on the given range and for each value I splitted it in half
+	// and check if the first hals is equal to the second half
+	// if yes that is an invalid IDs
 	for id := start; id <= end; id++ {
 		idString := strconv.Itoa(id)
 		if (len(idString) % 2) == 0 {
-			// fmt.Printf("%v - %v - %v\n", id, len(strconv.Itoa(id)), (len(strconv.Itoa(id)) % 2))
 			if idString[:(len(idString)/2)] == idString[(len(idString)/2):] {
 				invalid += id
 			}
