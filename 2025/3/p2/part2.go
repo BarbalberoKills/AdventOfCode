@@ -2,9 +2,10 @@ package p2
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
 
 type Node struct {
@@ -13,52 +14,46 @@ type Node struct {
 }
 
 func Solve(input string) int {
-	file, err := os.ReadFile(input)
+	file, err := utils.ReadFile(input)
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
+		fmt.Println("error opening file: ", err)
 	}
 
 	var totalJoltage int
 	banks := strings.Split(string(file), "\n")
 	for _, bank := range banks {
 		totalJoltage += batteryJoltage(bank)
-		// break
 	}
 	return totalJoltage
 }
 
 func batteryJoltage(bank string) int {
+	// I've created a node that will stores all the number in an array
+	// and their position in the bank
 	batteryOn := Node{}
 	for i, battery := range bank {
 		batteryInt, _ := strconv.Atoi(string(battery))
-
+		// I check each value in the line and store the HIGHEST
+		// but I search only in the first 3 characters,
+		// because later I need to check 11 element more
 		if batteryInt > batteryOn.joltages[0] && i <= len(bank)-12 {
 			batteryOn.joltages[0] = batteryInt
 			batteryOn.positions[0] = i
 		}
 	}
+
 	batteryOn.joltageComparetor(0, bank)
 
-	// for i := higher.position + 1; i < len(bank); i++ {
-	// 	batteryInt, _ := strconv.Atoi(string(bank[i]))
-
-	// 	if batteryInt > secondHigher.value {
-	// 		secondHigher.value = batteryInt
-	// 		secondHigher.position = i
-	// 	}
-	// }
-	// s := []string{strconv.Itoa(higher.value), strconv.Itoa(secondHigher.value)}
-	// x := strings.Join(s, "")
 	var s []string
 	for _, j := range batteryOn.joltages {
 		s = append(s, strconv.Itoa(j))
 	}
 	result, _ := strconv.Atoi(strings.Join(s, ""))
-	// fmt.Println(batteryOn.positions)
-	// fmt.Println()
 	return result
 }
 
+// this function recursivelly search for the highest value present,
+// starting only from the point where the previous highest value was
 func (n *Node) joltageComparetor(counter int, bank string) {
 	current := counter + 1
 	if counter < 11 {

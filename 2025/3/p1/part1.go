@@ -2,9 +2,10 @@ package p1
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
 
 type Node struct {
@@ -13,9 +14,9 @@ type Node struct {
 }
 
 func Solve(input string) int {
-	file, err := os.ReadFile(input)
+	file, err := utils.ReadFile(input)
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
+		fmt.Println("error opening file: ", err)
 	}
 
 	var totalJoltage int
@@ -30,6 +31,9 @@ func batteryJoltage(bank string) int {
 
 	higher := Node{value: 0, position: 0}
 	secondHigher := Node{value: 0, position: 0}
+
+	// store the higher value of the line excluding the last one
+	// because I need to parse a second value
 	for i, battery := range bank {
 		batteryInt, _ := strconv.Atoi(string(battery))
 
@@ -38,6 +42,9 @@ func batteryJoltage(bank string) int {
 			higher.position = i
 		}
 	}
+
+	// I scan for the second highest value in the bank starting
+	// after the position of the fist value found
 	for i := higher.position; i < len(bank); i++ {
 		batteryInt, _ := strconv.Atoi(string(bank[i]))
 
@@ -46,9 +53,9 @@ func batteryJoltage(bank string) int {
 			secondHigher.position = i
 		}
 	}
+	// conver both value to elements of a string
 	s := []string{strconv.Itoa(higher.value), strconv.Itoa(secondHigher.value)}
-	x := strings.Join(s, "")
-	result, _ := strconv.Atoi(x)
-	fmt.Println(x)
+	// combining them into one string only and cast it to int
+	result, _ := strconv.Atoi(strings.Join(s, ""))
 	return result
 }
