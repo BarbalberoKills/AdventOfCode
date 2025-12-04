@@ -15,6 +15,13 @@ type Grid struct {
 	grid [][]Roll
 }
 
+type Maker interface {
+	makerGrid() Grid
+}
+
+type Stream struct {
+}
+
 func Solve(input string) int {
 	scanner, file, err := utils.ReadFileLighter(input)
 	if err != nil {
@@ -24,15 +31,9 @@ func Solve(input string) int {
 
 	var totalRolls int
 
-	grid := Grid{}
+	var m Maker
 
-	row := 0
-	for scanner.Scan() {
-		grid.grid = append(grid.grid, []Roll{})
-		line := scanner.Text()
-		grid.makerGrid(row, line)
-		row++
-	}
+	grid := m.makerGrid(scanner)
 
 	// visualPrint(grid)
 
@@ -41,22 +42,49 @@ func Solve(input string) int {
 	return totalRolls
 }
 
-func test(scan *bufio.Scanner) {
-	for scan.Scan() {
-		fmt.Println(scan.Text())
-	}
+func maker(m Maker) {
+	m.makerGrid(scanner)
 }
 
-func (g *Grid) makerGrid(row int, line string) {
-	for _, r := range line {
-		if r == '@' {
-			// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
-			g.grid[row] = append(g.grid[row], Roll{presence: true})
-		} else {
-			// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
-			g.grid[row] = append(g.grid[row], Roll{presence: false})
+func (s *Stream) makerGrid(scanner *bufio.Scanner) Grid {
+	grid := Grid{}
+	row := 0
+	for scanner.Scan() {
+		grid.grid = append(grid.grid, []Roll{})
+		line := scanner.Text()
+		for _, r := range line {
+			if r == '@' {
+				// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
+				grid.grid[row] = append(grid.grid[row], Roll{presence: true})
+			} else {
+				// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
+				grid.grid[row] = append(grid.grid[row], Roll{presence: false})
+			}
+		}
+		row++
+	}
+	return grid
+}
+
+func (g *Grid) makerGrid() Grid {
+	newGrid := Grid{}
+	for l, line := range g.grid {
+		newGrid.grid = append(newGrid.grid, []Roll{})
+		for r, roll := range line {
+			if roll.presence {
+				nearRolls = g.checkNeighbours(l, r)
+				if nearRolls < 4 {
+					validRol++
+					newGrid.grid[l] = append(newGrid.grid[l], Roll{presence: false})
+					// fmt.Printf("x")
+					continue
+				}
+			}
+
 		}
 	}
+
+	return newGrid
 }
 
 func (g *Grid) parseGrid() int {
