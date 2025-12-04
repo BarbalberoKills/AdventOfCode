@@ -12,7 +12,7 @@ func TestSolve(t *testing.T) {
 
 		//Assert
 		got := Solve("../input_test.txt")
-		expected := 357
+		expected := 13
 
 		if got != expected {
 			t.Errorf("Expexted: %d, Got: %d", expected, got)
