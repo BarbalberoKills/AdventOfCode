@@ -1,7 +1,11 @@
 package p1
 
 import (
+	"bufio"
 	"fmt"
+	"slices"
+	"strconv"
+	"strings"
 
 	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
@@ -21,82 +25,50 @@ func Solve(input string) int {
 	}
 	defer file.Close()
 
-	var totalRolls int
+	var availableIngredients int
 
-	grid := Grid{}
+	ranges, ingredients := parseFile(scanner)
+	// fmt.Println(strings.Join(ranges, ""))
+	// fmt.Println("CIAO")
+	// fmt.Println(strings.Join(ingredients, ""))
 
-	row := 0
+	availableIngredients = len(freshCheck(ranges, ingredients))
+
+	return availableIngredients
+}
+
+func parseFile(scanner *bufio.Scanner) ([]string, []string) {
+	ranges, ingredients := []string{}, []string{}
 	for scanner.Scan() {
-		grid.grid = append(grid.grid, []Roll{})
 		line := scanner.Text()
-		grid.makerGrid(row, line)
-		row++
-	}
-
-	totalRolls += grid.parseGrid()
-
-	return totalRolls
-}
-
-func (g *Grid) makerGrid(row int, line string) {
-	for _, r := range line {
-		if r == '@' {
-			// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
-			g.grid[row] = append(g.grid[row], Roll{presence: true})
+		if strings.Contains(line, "-") {
+			ranges = append(ranges, line)
+		} else if strings.Contains(line, "\n") {
+			continue
 		} else {
-			// fmt.Printf("Row: %v - Column: %v - Value: %v\n", row+1, i+1, string(r))
-			g.grid[row] = append(g.grid[row], Roll{presence: false})
+			ingredients = append(ingredients, line)
 		}
 	}
+	return ranges, ingredients
+
 }
 
-func (g *Grid) parseGrid() int {
-	var nearRolls int
-	validRol := 0
-	for l, line := range g.grid {
-		nearRolls = 0
-		for r, roll := range line {
-			// fmt.Printf("lr: (%v,%v) presence: %v\n", l, r, roll.presence)
-			if roll.presence {
-				nearRolls = g.checkNeighbours(l, r)
-				if nearRolls < 4 {
-					validRol++
-					fmt.Printf("x")
-					continue
-				}
-			}
-			if roll.presence {
-				fmt.Printf("@")
-			} else {
-				fmt.Printf(".")
-			}
-		}
-		fmt.Println()
-		// break
-	}
-	return validRol
-}
-
-func (g *Grid) checkNeighbours(posx, posy int) int {
-	nearRolls := 0
-	for x := -1; x <= 1; x++ {
-		for y := -1; y <= 1; y++ {
-			if x == 0 && y == 0 {
-				continue
-			}
-			// fmt.Printf("xy: (%v,%v)\n", x, y)
-			newX := posx + x
-			newY := posy + y
-			// fmt.Printf("newX: %v, newY: %v", newX, newY)
-			if newX >= 0 && newY >= 0 && newX < len(g.grid) && newY < len(g.grid[0]) {
-				// fmt.Printf("xy: (%v,%v) - Value: %v\n", x, y, g.grid[newX][newY].presence)
-				if g.grid[newX][newY].presence {
-					nearRolls++
+func freshCheck(ranges, ingredients []string) []int {
+	checkedIng := []int{}
+	for _, interval := range ranges {
+		fmt.Printf("Checking range: %v\n", interval)
+		startS, endS := strings.Split(interval, "-")[0], strings.Split(interval, "-")[1]
+		start, _ := strconv.Atoi(startS)
+		end, _ := strconv.Atoi(endS)
+		// fmt.Printf("Start: %v - End: %v\n", start, end)
+		for ingInRange := start; ingInRange <= end; ingInRange++ {
+			for _, ingredientS := range ingredients {
+				ingredient, _ := strconv.Atoi(ingredientS)
+				if ingredient == ingInRange && !slices.Contains(checkedIng, ingredient) {
+					checkedIng = append(checkedIng, ingredient)
 				}
 			}
 		}
 	}
-	// fmt.Println(nearRolls)
-	// fmt.Println()
-	return nearRolls
+	return checkedIng
 }
