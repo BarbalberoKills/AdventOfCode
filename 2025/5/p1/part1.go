@@ -61,12 +61,10 @@ func freshCheck(ranges, ingredients []string) []int {
 		start, _ := strconv.Atoi(startS)
 		end, _ := strconv.Atoi(endS)
 		// fmt.Printf("Start: %v - End: %v\n", start, end)
-		for ingInRange := start; ingInRange <= end; ingInRange++ {
-			for _, ingredientS := range ingredients {
-				ingredient, _ := strconv.Atoi(ingredientS)
-				if ingredient == ingInRange && !slices.Contains(checkedIng, ingredient) {
-					checkedIng = append(checkedIng, ingredient)
-				}
+		for _, ingredientS := range ingredients {
+			ingredient, _ := strconv.Atoi(ingredientS)
+			if start <= ingredient && ingredient <= end && !slices.Contains(checkedIng, ingredient) {
+				checkedIng = append(checkedIng, ingredient)
 			}
 		}
 	}
