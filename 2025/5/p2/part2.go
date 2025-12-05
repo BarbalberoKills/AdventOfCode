@@ -68,72 +68,28 @@ func (n *Nodes) orderRanges(ranges []string) []Node {
 }
 
 func (n *Nodes) freshRangeAnalyzer() int {
-	var newRanges Nodes
-	newRanges.nodes = append(newRanges.nodes, Node{start: n.nodes[0].start, end: n.nodes[0].end})
+	newRanges := Nodes{nodes: []Node{Node{start: n.nodes[0].start, end: n.nodes[0].end}}}
 	for actual := range n.nodes {
-		// var newEnd int
-		fmt.Printf("---Start: %v - End: %v\n", n.nodes[actual].start, n.nodes[actual].end)
-		next := actual + 1
-		if next < len(n.nodes) {
-			fmt.Println(n.nodes[next].start)
-			for n.nodes[next].start < n.nodes[actual].end {
-				n.nodes[actual].end = n.nodes[next].start
+		// fmt.Printf("---Start: %v - End: %v\n", n.nodes[actual].start, n.nodes[actual].end)
+		previous := &newRanges.nodes[len(newRanges.nodes)-1]
+
+		if n.nodes[actual].start < previous.end {
+			if n.nodes[actual].end > previous.end {
+				previous.end = n.nodes[actual].end
 			}
-			fmt.Printf("Start: %v End: %v\n", n.nodes[actual].start, n.nodes[actual].end)
+
+		} else {
 			newRanges.nodes = append(newRanges.nodes, Node{start: n.nodes[actual].start, end: n.nodes[actual].end})
 		}
-
 	}
-	// os.Exit(1)
-	// if i+1 < len(n.nodes) {
-	// 	fmt.Printf("Compare: %v with %v\n", n.nodes[i].end, n.nodes[i+1].start)
-	// 	if n.nodes[i].end >= n.nodes[i+1].start && n.nodes[i].end <= n.nodes[i+1].end {
-	// 		fmt.Println(n.nodes[i].end)
-	// 		n.nodes[i].end = n.nodes[i+1].end
-	// 		fmt.Println(n.nodes[i].end)
-	// 	} else {
-	// 		newRanges.nodes = append(newRanges.nodes, Node{start: n.nodes[i].start, end: n.nodes[i].end})
-	// 	}
+	// fmt.Println("NEW SLICE")
+	// for i := range newRanges.nodes {
+	// 	fmt.Printf("---Start: %v - End: %v\n", newRanges.nodes[i].start, newRanges.nodes[i].end)
 	// }
-	// for k := 1 + i; k < len(n.nodes); k++ {
-	// 	fmt.Printf("Compare: %v with %v\n", n.nodes[i].end, n.nodes[k].start)
-	// 	if n.nodes[i].end >= n.nodes[k].start && n.nodes[i].end <= n.nodes[k].end {
-	// 		fmt.Printf("TRUE - Range %v - %v becames %v - %v\n", n.nodes[i].start, n.nodes[i].end, n.nodes[i].start, n.nodes[k].end)
-	// 		n.nodes[i].end = n.nodes[k].end
-	// 		// fmt.Printf("S: %v, E: %v", Node{start: n.nodes[i].start, end: n.nodes[k].end}.start, Node{start: n.nodes[i].start, end: n.nodes[k].end}.end)
-	// 	} else if n.nodes[i].end <= n.nodes[k].start {
-	// 		newRanges.nodes = append(newRanges.nodes, Node{start: n.nodes[i].start, end: n.nodes[i].end})
-	// 		break
-	// 	}
-	// }
-	// if n.nodes[i].end != origEnd {
-	// 	newRanges.nodes = append(newRanges.nodes, Node{start: n.nodes[i].start, end: n.nodes[i].end})
-	// }
-	// fmt.Println("LOW")
-	// for i := range n.nodes {
-	// 	fmt.Printf("---Start: %v - End: %v\n", n.nodes[i].start, n.nodes[i].end)
-	// 	for k := 1 + i; k < len(n.nodes); k++ {
-	// 		// fmt.Printf("Compare: %v with %v\n", n.nodes[i].start, n.nodes[k].start)
-	// 		if n.nodes[i].end == n.nodes[k].end {
-	// 			// fmt.Printf("TRUE - Range %v - %v becames %v - %v\n", n.nodes[i].start, n.nodes[i].end, n.nodes[k].start, n.nodes[i].end)
-	// 			// n.nodes[i].start = n.nodes[k].start
-	// 			newRanges.nodes = append(newRanges.nodes, n.nodes[i])
-	// 			break
-	// 		}
-	// 		// newRanges.nodes = append(newRanges.nodes, n.nodes[i])
-	// 	}
-	// 	// newRanges.nodes = append(newRanges.nodes, n.nodes[i])
-
-	// }
-	// fmt.Println()
-	fmt.Println("NEW SLICE")
-	for i := range newRanges.nodes {
-		fmt.Printf("---Start: %v - End: %v\n", newRanges.nodes[i].start, newRanges.nodes[i].end)
-	}
 
 	fresh := 0
 	for _, interval := range newRanges.nodes {
-		fresh += interval.end - interval.start
+		fresh += interval.end + 1 - interval.start
 	}
 	return fresh
 }
