@@ -73,7 +73,7 @@ func (n *Nodes) freshRangeAnalyzer() int {
 		// fmt.Printf("---Start: %v - End: %v\n", n.nodes[actual].start, n.nodes[actual].end)
 		previous := &newRanges.nodes[len(newRanges.nodes)-1]
 
-		if n.nodes[actual].start < previous.end {
+		if n.nodes[actual].start <= previous.end {
 			if n.nodes[actual].end > previous.end {
 				previous.end = n.nodes[actual].end
 			}
