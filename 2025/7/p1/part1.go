@@ -3,8 +3,6 @@ package p1
 import (
 	"bufio"
 	"fmt"
-	"regexp"
-	"strconv"
 
 	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
@@ -16,70 +14,52 @@ func Solve(input string) int {
 	}
 	defer file.Close()
 
-	numbers, operations := parseFile(scanner)
-	numbers = transpose(numbers)
+	matrix := parseFile(scanner)
 
-	total := 0
-	for i, o := range operations {
-		parzial := 0
-		if o == "+" {
-			for _, n := range numbers[i] {
-				num, _ := strconv.Atoi(n)
-				parzial = parzial + num
+	count := 0
+	for r := range matrix {
+		// fmt.Println(matrix[r])
+		for c := range matrix[r] {
+			element := matrix[r][c]
+
+			if element == "S" {
+				matrix[r+1][c] = "|"
 			}
-		} else if o == "*" {
-			for _, n := range numbers[i] {
-				num, _ := strconv.Atoi(n)
-				if parzial == 0 {
-					parzial = num
-				} else {
-					parzial = parzial * num
+
+			if r >= 1 && r < len(matrix)-1 {
+				// aboveElement := matrix[r-1][c]
+				beloveElement := matrix[r+1][c]
+				if element == "|" && beloveElement == "^" {
+					count++
+					matrix[r+1][c+1] = "|"
+					matrix[r+1][c-1] = "|"
+				} else if element == "|" && beloveElement == "." {
+					matrix[r+1][c] = "|"
 				}
 			}
 		}
-		// fmt.Println(parzial)
-		total = total + parzial
+		// fmt.Println(matrix[r])
+		// fmt.Println(count)
 	}
+
+	for r := range matrix {
+		fmt.Println(matrix[r])
+	}
+
+	total := count
 
 	return total
 }
 
-func parseFile(scanner *bufio.Scanner) ([][]string, []string) {
-	var numbers [][]string
-	var operation []string
-	count := 0
+func parseFile(scanner *bufio.Scanner) [][]string {
+	var matrix [][]string
 	for scanner.Scan() {
 		line := scanner.Text()
-		r1 := regexp.MustCompile(`\d+`)
-		r2 := regexp.MustCompile(`[+]|[*]`)
-		rowNumbers := r1.FindAllString(line, -1)
-		rowOperations := r2.FindAllString(line, -1)
-		if len(rowNumbers) != 0 {
-			numbers = append(numbers, rowNumbers)
-		} else {
-			operation = rowOperations
+		row := make([]string, 0, len(line))
+		for _, r := range line {
+			row = append(row, string(r))
 		}
-		count++
+		matrix = append(matrix, row)
 	}
-	return numbers, operation
-}
-
-func transpose(matrix [][]string) [][]string {
-	m := len(matrix)
-	n := len(matrix[0])
-
-	newMatrix := make([][]string, n)
-	for i := 0; i < n; i++ {
-		newMatrix[i] = make([]string, m)
-	}
-
-	var row []string
-	for i := 0; i < n; i++ {
-		row = newMatrix[i]
-		for j := 0; j < m; j++ {
-			row[j] = matrix[j][i]
-		}
-	}
-
-	return newMatrix
+	return matrix
 }
