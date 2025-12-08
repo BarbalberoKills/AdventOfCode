@@ -2,8 +2,10 @@ package p1
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
 	"math"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -13,8 +15,13 @@ import (
 
 type Box struct {
 	position []int
+	circuits []Circuit
 }
 
+type Connection struct {
+	a, b     Box
+	distance float64
+}
 type Circuit struct {
 	boxes []Box
 }
@@ -29,24 +36,31 @@ func Solve(input string) int {
 	boxes := parseFile(scanner)
 
 	// create a map that has as key the distance between the two boxes stored as values
-	var distances = make(map[float64][]Box)
+	var connections []Connection
 	for i := 0; i < len(boxes); i++ {
 		for y := i + 1; y < len(boxes); y++ {
 			d := calcDistance(boxes[y], boxes[i])
-			distances[d] = []Box{boxes[y], boxes[i]}
+			connections = append(connections, Connection{a: boxes[y], b: boxes[i], distance: d})
 		}
 	}
 
-	// sort the map based on the key, so the closest is first
-	keys := make([]float64, 0, len(distances))
-	for k := range distances {
-		keys = append(keys, k)
-	}
-	slices.Sort(keys)
-	// for _, i := range keys {
-	// 	fmt.Printf("Key: %v - Value: %v\n", i, distances[i])
+	// sort element in connections starting from the closer
+	slices.SortFunc(connections, func(a, b Connection) int {
+		return cmp.Compare(a.distance, b.distance)
+	})
+
+	// for _, i := range connections {
+	// 	fmt.Println(i)
 	// }
 
+	for i, b := range connections {
+		fmt.Println(b.a.position)
+		fmt.Println(b.a.circuits)
+		if i == 10 {
+			break
+		}
+	}
+	fmt.Printf("\n\n")
 	var circuits []Circuit
 
 	check := true
@@ -55,32 +69,41 @@ func Solve(input string) int {
 		if count == 0 {
 			check = false
 		}
+		upCounter := int(math.Abs(float64(count - 9)))
+		a := connections[upCounter].a
+		b := connections[upCounter].b
 
-		a := distances[keys[int(math.Abs(float64(count-9)))]][0]
-		b := distances[keys[int(math.Abs(float64(count-9)))]][1]
 		if len(circuits) == 0 {
 			circuits = append(circuits, Circuit{boxes: []Box{a, b}})
+			connections[upCounter].a.circuits = append(connections[upCounter].a.circuits, circuits[0])
+			connections[upCounter].b.circuits = append(connections[upCounter].b.circuits, circuits[0])
 			count--
 			continue
 		}
-		fmt.Printf("Dist: %v - a: %v - b: %v\n", keys[int(math.Abs(float64(count-9)))], a, b)
+
+		// fmt.Printf("Dist: %v - a: %v - b: %v\n", connections[upCounter].distance, a, b)
 		for i := range circuits {
-			fmt.Println(count)
-			// fmt.Println(c.boxes[0])
+			// fmt.Println(count)
 			if containsBox(circuits[i].boxes, a) && containsBox(circuits[i].boxes, b) {
-				fmt.Println("z")
+				// fmt.Println("z")
 				break
 			} else if containsBox(circuits[i].boxes, a) {
-				fmt.Println("a")
+				// fmt.Println("a")
 				circuits[i].boxes = append(circuits[i].boxes, b)
+				connections[upCounter].b.circuits = append(connections[upCounter].b.circuits, circuits[i])
+				// fmt.Println(b.circuits)
 				break
 			} else if containsBox(circuits[i].boxes, b) {
-				fmt.Println("b")
+				// fmt.Println("b")
 				circuits[i].boxes = append(circuits[i].boxes, a)
+				connections[upCounter].a.circuits = append(connections[upCounter].a.circuits, circuits[i])
+				// fmt.Println(a.circuits)
 				break
 			} else {
-				fmt.Println("c")
+				// fmt.Println("c")
 				circuits = append(circuits, Circuit{boxes: []Box{a, b}})
+				connections[upCounter].a.circuits = append(connections[upCounter].a.circuits, circuits[i])
+				connections[upCounter].b.circuits = append(connections[upCounter].b.circuits, circuits[i])
 				break
 			}
 		}
@@ -88,12 +111,18 @@ func Solve(input string) int {
 		// if count == 1 {
 		// 	os.Exit(1)
 		// }
-		// fmt.Println(distances[keys[int(math.Abs(float64(count-9)))]][0])
 		count--
 	}
 
-	for _, c := range circuits {
-		fmt.Println(c)
+	// for _, c := range circuits {
+	// 	fmt.Println(c)
+	// }
+	for i, b := range connections {
+		fmt.Println(b.a.position)
+		fmt.Println(b.a.circuits)
+		if i == 10 {
+			os.Exit(1)
+		}
 	}
 
 	total := len(boxes)
