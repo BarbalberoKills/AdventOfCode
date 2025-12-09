@@ -2,10 +2,19 @@ package p2
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
+	"math"
+	"slices"
+	"strconv"
+	"strings"
 
 	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
+
+type Tile struct {
+	x, y int
+}
 
 func Solve(input string) int {
 	scanner, file, err := utils.ReadFileLighter(input)
@@ -14,69 +23,47 @@ func Solve(input string) int {
 	}
 	defer file.Close()
 
-	matrix := parseFile(scanner)
+	tiles := parseFile(scanner)
 
-	count := navigate(matrix)
+	// sort the tiles based on the x value, if x are the same, it sorts based on y
+	slices.SortFunc(tiles, func(a, b Tile) int {
+		c := cmp.Compare(a.x, b.x)
+		if c == 0 {
+			c = cmp.Compare(a.y, b.y)
+		}
+		return c
+	})
 
-	total := count
+	biggestArea := 0.0
+	for i := range tiles {
+		for y := (i + 1); y <= len(tiles)-1; y++ {
+			area := calcArea(tiles[i].x, tiles[i].y, tiles[y].x, tiles[y].y)
+			if area >= biggestArea {
+				biggestArea = area
+			}
+		}
+	}
 
-	return total
+	return int(biggestArea)
 }
 
-func parseFile(scanner *bufio.Scanner) [][]string {
-	var matrix [][]string
+func parseFile(scanner *bufio.Scanner) []Tile {
+	var tiles []Tile
 	for scanner.Scan() {
 		line := scanner.Text()
-		row := make([]string, 0, len(line))
-		for _, r := range line {
-			row = append(row, string(r))
+		posString := strings.Split(line, ",")
+		var pos []int
+		for _, posS := range posString {
+			posInt, _ := strconv.Atoi(posS)
+			pos = append(pos, posInt)
 		}
-		matrix = append(matrix, row)
+		tiles = append(tiles, Tile{x: pos[0], y: pos[1]})
 	}
-	return matrix
+	return tiles
 }
 
-func navigate(matrix [][]string) int {
-	// pc, _, _, ok := runtime.Caller(1)
-	// details := runtime.FuncForPC(pc)
-	// fmt.Printf("called from %s\n", details.Name())
-	count := 0
-	for r := range matrix {
-		for c := range matrix[r] {
-			element := matrix[r][c]
+func calcArea(x1, y1, x2, y2 int) float64 {
 
-			if element == "S" {
-				matrix[r+1][c] = "|"
-			}
-
-			if r < len(matrix)-1 {
-				// aboveElement := matrix[r-1][c]
-				beloveElement := matrix[r+1][c]
-				if element == "|" && beloveElement == "." {
-					matrix[r+1][c] = "|"
-				} else if element == "|" && beloveElement == "^" {
-					// matrix[r+1][c+1] = "|"
-					matrix[r+1][c-1] = "|"
-					subMatrix := matrix[r+1:]
-					count += navigate(subMatrix)
-					// matrix[r+1][c+1] = "|"
-					// subMatrix = matrix[r+1:]
-					// count += navigate(subMatrix)
-				}
-			}
-			if r == len(matrix)-1 && element == "|" {
-				count++
-			}
-		}
-	}
-	fmt.Printf("ITERATION: , COUNT:%v\n", count)
-	print(matrix)
-	fmt.Println()
-	return count
-}
-
-func print(matrix [][]string) {
-	for r := range matrix {
-		fmt.Println(matrix[r])
-	}
+	area := (math.Abs((float64(x2) - float64(x1))) + 1) * (math.Abs((float64(y2) - float64(y1))) + 1)
+	return area
 }

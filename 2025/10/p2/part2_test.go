@@ -1,4 +1,4 @@
-package p1
+package p2
 
 import (
 	"testing"
@@ -12,7 +12,7 @@ func TestSolve(t *testing.T) {
 
 		//Assert
 		got := Solve("../input_test.txt")
-		expected := 50
+		expected := 3263827
 
 		if got != expected {
 			t.Errorf("Expexted: %d, Got: %d", expected, got)
