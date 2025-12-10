@@ -45,10 +45,10 @@ func batteryJoltage(bank string) int {
 
 	// I scan for the second highest value in the bank starting
 	// after the position of the fist value found
-	for i := higher.position; i < len(bank); i++ {
+	for i := higher.position + 1; i < len(bank); i++ {
 		batteryInt, _ := strconv.Atoi(string(bank[i]))
 
-		if batteryInt > secondHigher.value && i > higher.position {
+		if batteryInt > secondHigher.value {
 			secondHigher.value = batteryInt
 			secondHigher.position = i
 		}

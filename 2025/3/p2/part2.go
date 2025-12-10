@@ -67,5 +67,4 @@ func (n *Node) joltageComparetor(counter int, bank string) {
 		}
 		n.joltageComparetor(counter+1, bank)
 	}
-
 }

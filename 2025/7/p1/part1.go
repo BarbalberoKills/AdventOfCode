@@ -24,6 +24,7 @@ func Solve(input string) int {
 
 			if element == "S" {
 				matrix[r+1][c] = "|"
+				continue
 			}
 
 			if r >= 1 && r < len(matrix)-1 {

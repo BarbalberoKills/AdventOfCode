@@ -76,7 +76,7 @@ func Solve(input string) int {
 		}
 	}
 
-	// visualizer(greenTilesHorizontal)
+	visualizer(greenTilesHorizontal)
 
 	return int(biggestArea)
 }
