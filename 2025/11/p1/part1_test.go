@@ -11,7 +11,7 @@ func TestSolve(t *testing.T) {
 		//Act
 
 		//Assert
-		got := Solve("../input_test.txt")
+		got := Solve("../input_test1.txt")
 		expected := 5
 
 		if got != expected {

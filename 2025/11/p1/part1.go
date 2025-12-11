@@ -20,15 +20,7 @@ func Solve(input string) int {
 		fmt.Println("error opening file: ", err)
 	}
 	defer file.Close()
-
 	devices := parseFile(scanner)
-
-	devices = ordered(devices, "you")
-
-	// for _, i := range devices {
-	// 	fmt.Println(i)
-	// }
-
 	return pathsCount(devices, "you", "out")
 }
 
@@ -85,11 +77,8 @@ func ordered(devices []*Device, first string) []*Device {
 }
 
 func pathsCount(devices []*Device, in, out string) int {
-
 	devices = ordered(devices, in)
-	device := devices[0]
-
-	counter := checkConnection(device, out)
+	counter := checkConnection(devices[0], out)
 	return counter
 }
 

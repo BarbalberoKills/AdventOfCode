@@ -3,9 +3,19 @@ package p2
 import (
 	"bufio"
 	"fmt"
+	"slices"
+	"strings"
+	"time"
 
 	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
+
+var cache = make(map[string]int)
+
+type Device struct {
+	name        string
+	connections []*Device
+}
 
 func Solve(input string) int {
 	scanner, file, err := utils.ReadFileLighter(input)
@@ -14,69 +24,99 @@ func Solve(input string) int {
 	}
 	defer file.Close()
 
-	matrix := parseFile(scanner)
+	devices := parseFile(scanner)
 
-	count := navigate(matrix)
+	result := timeit(func() int {
+		res1 := pathsCount(devices, "svr", "out")
+		fmt.Printf("%v\n", res1)
+		return res1
+	})
 
-	total := count
-
-	return total
+	return result
 }
 
-func parseFile(scanner *bufio.Scanner) [][]string {
-	var matrix [][]string
+func timeit(f func() int) int {
+	start := time.Now()
+	result := f()
+	elapsed := time.Since(start)
+	fmt.Printf("Elapsed time: %v\n", elapsed)
+	return result
+}
+
+func parseFile(scanner *bufio.Scanner) []*Device {
+	var devices []*Device
 	for scanner.Scan() {
 		line := scanner.Text()
-		row := make([]string, 0, len(line))
-		for _, r := range line {
-			row = append(row, string(r))
+		name := strings.Split(line, ":")
+		device := &Device{name: name[0]}
+
+		index := slices.IndexFunc(devices, func(d *Device) bool {
+			return d.name == name[0]
+		})
+		if index == -1 {
+			devices = append(devices, device)
+		} else {
+			device = devices[index]
 		}
-		matrix = append(matrix, row)
-	}
-	return matrix
-}
 
-func navigate(matrix [][]string) int {
-	// pc, _, _, ok := runtime.Caller(1)
-	// details := runtime.FuncForPC(pc)
-	// fmt.Printf("called from %s\n", details.Name())
-	count := 0
-	for r := range matrix {
-		for c := range matrix[r] {
-			element := matrix[r][c]
-
-			if element == "S" {
-				matrix[r+1][c] = "|"
-			}
-
-			if r < len(matrix)-1 {
-				// aboveElement := matrix[r-1][c]
-				beloveElement := matrix[r+1][c]
-				if element == "|" && beloveElement == "." {
-					matrix[r+1][c] = "|"
-				} else if element == "|" && beloveElement == "^" {
-					// matrix[r+1][c+1] = "|"
-					matrix[r+1][c-1] = "|"
-					subMatrix := matrix[r+1:]
-					count += navigate(subMatrix)
-					// matrix[r+1][c+1] = "|"
-					// subMatrix = matrix[r+1:]
-					// count += navigate(subMatrix)
-				}
-			}
-			if r == len(matrix)-1 && element == "|" {
-				count++
+		connections := strings.Split(strings.TrimSpace(name[1]), " ")
+		for _, c := range connections {
+			index = slices.IndexFunc(devices, func(d *Device) bool {
+				return d.name == c
+			})
+			if index != -1 {
+				device.connections = append(device.connections, devices[index])
+			} else {
+				d := &Device{name: c}
+				device.connections = append(device.connections, d)
+				devices = append(devices, d)
 			}
 		}
 	}
-	fmt.Printf("ITERATION: , COUNT:%v\n", count)
-	print(matrix)
-	fmt.Println()
-	return count
+
+	// for i, d := range devices {
+	// 	fmt.Printf("Name: %v - pointer: %p\n", d.name, devices[i])
+	// 	for _, c := range d.connections {
+	// 		fmt.Printf("	%c Child Name: %v - pointer: %p\n", '\u21b3', c.name, c)
+	// 	}
+	// 	fmt.Println()
+	// }
+	return devices
 }
 
-func print(matrix [][]string) {
-	for r := range matrix {
-		fmt.Println(matrix[r])
+func ordered(devices []*Device, first string) []*Device {
+	for i, d := range devices {
+		if d.name == first {
+			oldFirst := devices[0]
+			devices[0] = d
+			devices[i] = oldFirst
+		}
 	}
+	return devices
+}
+
+func pathsCount(devices []*Device, in, out string) int {
+
+	devices = ordered(devices, in)
+	device := devices[0]
+
+	counter := checkConnection(device, out, cache)
+
+	return counter
+}
+
+func checkConnection(device *Device, match string, cache map[string]int) int {
+	counter := 0
+	for _, conn := range device.connections {
+		if conn.name == match {
+			counter++
+			return counter
+		} else if v, ok := cache[conn.name]; ok {
+			return v
+		} else {
+			counter += checkConnection(conn, match, cache)
+			cache[conn.name] = counter
+		}
+	}
+	return counter
 }
