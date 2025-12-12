@@ -10,8 +10,6 @@ import (
 	"github.com/BarbalberoKills/AdventOfCode/2025/utils"
 )
 
-var cache = make(map[string]int)
-
 type Device struct {
 	name        string
 	connections []*Device
@@ -23,15 +21,13 @@ func Solve(input string) int {
 		fmt.Println("error opening file: ", err)
 	}
 	defer file.Close()
-
 	devices := parseFile(scanner)
-
 	result := timeit(func() int {
-		res1 := pathsCount(devices, "svr", "out")
-		fmt.Printf("%v\n", res1)
-		return res1
+		res1 := pathsCount(devices, "svr", "fft")
+		res2 := pathsCount(devices, "fft", "dac")
+		res3 := pathsCount(devices, "dac", "out")
+		return res1 * res2 * res3
 	})
-
 	return result
 }
 
@@ -96,27 +92,24 @@ func ordered(devices []*Device, first string) []*Device {
 }
 
 func pathsCount(devices []*Device, in, out string) int {
-
 	devices = ordered(devices, in)
-	device := devices[0]
-
-	counter := checkConnection(device, out, cache)
-
+	cache := make(map[string]int)
+	counter := checkConnection(devices[0], out, cache)
 	return counter
 }
 
 func checkConnection(device *Device, match string, cache map[string]int) int {
+	if device.name == match {
+		return 1
+	}
+	if v, ok := cache[device.name]; ok {
+		return v
+	}
 	counter := 0
 	for _, conn := range device.connections {
-		if conn.name == match {
-			counter++
-			return counter
-		} else if v, ok := cache[conn.name]; ok {
-			return v
-		} else {
-			counter += checkConnection(conn, match, cache)
-			cache[conn.name] = counter
-		}
+		counter += checkConnection(conn, match, cache)
 	}
+	cache[device.name] = counter
+
 	return counter
 }

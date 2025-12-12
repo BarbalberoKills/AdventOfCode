@@ -1,39 +1,37 @@
-[....]
-(3)
-[...#]
-(1,3)
-[.#..]
-(2)
-[.##.]
+you: aaa, bbb
+aaa: ccc, ddd
+ccc: out
+ddd: hhh
+hhh: out
+bbb: ddd
 
 
-[....]
-(3)
-[...#]
-(1,3)
-[.#..]
-(3)
-[.#.#]
-
-[....]
-(1,3)
-[.#.#]
-
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2)
-
-A - B
-A - C
-A - D
-B - C
-B - D
-C - D
-
-number di presses := 0
-ciclo su tutti buttoni
-- premo il primo button
-if !funziona
-    continue
-else
-    presses = 1
-if presses == 1
-    break
+device.name = you
+you == out ?? NO
+cache[you] esiste ?? NO
+child of you: [aaa, bbb]
+        |
+        |
+device.name = aaa
+aaa == out ?? NO
+cache[aaa] esiste ?? NO
+child of you: [ccc, ddd]
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+device.name = ccc
+ccc == out ?? NO
+cache[ccc] esiste ?? NO
+child of you: [out]         1 cache[ccc] = 1
+        |                 /
+        |               /
+        |             /
+        |           /
+        |         /
+device.name = out
+out == out ?? SI
+ritorno 1
